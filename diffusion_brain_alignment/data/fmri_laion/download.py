@@ -51,3 +51,8 @@ def load_stimuli(trials):
         image = stim.images.get(image_name)
         images.append(image)
     return images
+
+def load_brain_response(trials, roi=None):
+    sub = load_subject(subject=trials["subject"])
+    betas = sub.get_betas(session=trials["session"], roi=roi, streaming=True)
+    return betas[trials["trials"]]
