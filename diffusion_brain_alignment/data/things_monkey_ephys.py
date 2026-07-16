@@ -4,9 +4,9 @@ import subprocess
 from pathlib import Path
 
 
-data_dir = Path(__file__).resolve().parent.parent.parent.parent / "TVSD"
-images_dir = Path(__file__).resolve().parent.parent.parent.parent / "object_images"
-images_zip = Path(__file__).resolve().parent.parent.parent.parent / "images_THINGS.zip"
+data_dir = Path(__file__).resolve().parent.parent.parent / "data" / "things" / "TVSD"
+images_dir = Path(__file__).resolve().parent.parent.parent / "data" / "things" / "object_images"
+images_zip = Path(__file__).resolve().parent.parent.parent / "data" / "things" / "images_THINGS.zip"
 
 # THINGS images live in a password-protected zip on OSF. The password is public
 # (it only gates acceptance of the research/non-commercial license).
@@ -47,6 +47,7 @@ def download(monkey="monkeyF", dataset_path=data_dir):
 
     if not (dataset_path / ".datalad").exists():
         dataset_path.parent.mkdir(parents=True, exist_ok=True)
+        print(dataset_path)
         subprocess.run(
             ["datalad", "clone", "https://gin.g-node.org/paolo_papale/TVSD", str(dataset_path)],
             check=True,
@@ -102,7 +103,7 @@ def load_stimuli(trials, images_path=images_dir, zip_path=images_zip):
     import zipfile
 
     from PIL import Image
-
+    print(zip_path)
     images_path = Path(images_path)
     use_folder = images_path.exists()
     zf = None if use_folder else (zipfile.ZipFile(zip_path) if Path(zip_path).exists() else None)
