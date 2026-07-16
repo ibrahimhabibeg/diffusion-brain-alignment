@@ -24,6 +24,7 @@ dependencies = [
     "matplotlib>=3.10.9",
     "pip",
     "python-dotenv",
+    "rsatoolbox>=0.3.2",
     "ruff",
     "torch>=2.13.0",
     "torchvision>=0.28.0",

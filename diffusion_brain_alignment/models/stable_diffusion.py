@@ -29,7 +29,11 @@ def extract_features(images, normalized_timestep=0.5, batch_size=4):
 
     hook_handle = pipe.unet.mid_block.register_forward_hook(hook_fn)
 
-    transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize([0.5], [0.5])])
+    transform = transforms.Compose([
+        transforms.Resize((512, 512)),
+        transforms.ToTensor(), 
+        transforms.Normalize([0.5], [0.5])
+    ])
 
     def preprocess_image(img):
         return transform(img).to(device, dtype=pipe.vae.dtype)
