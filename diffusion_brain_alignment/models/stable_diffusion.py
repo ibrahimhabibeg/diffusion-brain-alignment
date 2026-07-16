@@ -9,7 +9,14 @@ device = (
 )
 model_id = "stable-diffusion-v1-5/stable-diffusion-v1-5"
 
-def extract_features(images, timestep_val=500, batch_size=4):
+def normalize_to_raw_timestep(t_normalized, scheduler):
+    t_clamped = max(0.0, min(1.0, t_normalized))
+    total_timesteps = scheduler.config.num_train_timesteps
+    max_index = total_timesteps - 1
+    t_raw = int(t_clamped * max_index)
+    return t_raw
+
+def extract_features(images, normalized_timestep=0.5, batch_size=4):
     scheduler = DDIMScheduler.from_pretrained(model_id, subfolder="scheduler")
     pipe = StableDiffusionPipeline.from_pretrained(
         model_id, scheduler=scheduler, torch_dtype=torch.float16
@@ -43,7 +50,7 @@ def extract_features(images, timestep_val=500, batch_size=4):
     empty_prompt_embeds = pipe.text_encoder(
         pipe.tokenizer("", return_tensors="pt").input_ids.to(device)
     )[0]
-
+    timestep_val = normalize_to_raw_timestep(normalized_timestep, scheduler)
     try:
         for image_batch in dataloader:
             with torch.no_grad():
