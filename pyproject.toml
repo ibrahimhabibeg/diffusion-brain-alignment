@@ -18,6 +18,7 @@ classifiers = [
 dependencies = [
     "ipykernel>=7.3.0",
     "laion-fmri",
+    "matplotlib>=3.10.9",
     "pip",
     "python-dotenv",
     "ruff",
