@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+
 
 from laion_fmri import load_stimuli as laion_load_stimuli
 from laion_fmri.config import dataset_initialize
@@ -6,12 +8,12 @@ from laion_fmri.download import download as laion_download
 from laion_fmri.download import download_stimuli
 from laion_fmri.subject import load_subject
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
+data_dir = Path(__file__).resolve().parent.parent.parent / "data" / "laion_fmri_data"
 
 
-def init_config(dataset_path=os.path.join(script_dir, "../../../data/laion_fmri_data")):
+def init_config(dataset_path=data_dir):
     os.makedirs(dataset_path, exist_ok=True)
-    dataset_initialize(dataset_path)
+    dataset_initialize(str(dataset_path))
     download_stimuli()
 
 
@@ -51,6 +53,7 @@ def load_stimuli(trials):
         image = stim.images.get(image_name)
         images.append(image)
     return images
+
 
 def load_brain_response(trials, roi=None):
     sub = load_subject(subject=trials["subject"])
