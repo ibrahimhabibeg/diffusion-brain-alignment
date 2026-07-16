@@ -16,12 +16,18 @@ classifiers = [
     
 ]
 dependencies = [
+    "accelerate>=1.14.0",
+    "diffusers>=0.39.0",
     "ipykernel>=7.3.0",
+    "ipywidgets>=8.1.8",
     "laion-fmri",
     "matplotlib>=3.10.9",
     "pip",
     "python-dotenv",
     "ruff",
+    "torch>=2.13.0",
+    "torchvision>=0.28.0",
+    "transformers>=5.14.0",
 ]
 requires-python = "~=3.10.0"
 
