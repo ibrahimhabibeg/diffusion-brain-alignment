@@ -9,6 +9,37 @@ device = (
 )
 model_id = "stable-diffusion-v1-5/stable-diffusion-v1-5"
 
+scheduler = DDIMScheduler.from_pretrained(model_id, subfolder="scheduler")
+pipe = StableDiffusionPipeline.from_pretrained(
+    model_id, scheduler=scheduler, torch_dtype=torch.float16
+).to(device)
+
+features = {}
+
+def hook_fn(module, input, output):
+    features["mid_block"] = output.detach().cpu()
+
+hook_handle = pipe.unet.mid_block.register_forward_hook(hook_fn)
+
+transform = transforms.Compose([
+    transforms.Resize((512, 512)),
+    transforms.ToTensor(), 
+    transforms.Normalize([0.5], [0.5])
+])
+
+def preprocess_image(img):
+    return transform(img).to(device, dtype=pipe.vae.dtype)
+
+class ImageDataset(Dataset):
+    def __init__(self, image_list):
+        self.image_list = image_list
+
+    def __len__(self):
+        return len(self.image_list)
+
+    def __getitem__(self, index):
+        return preprocess_image(self.image_list[index])
+
 def normalize_to_raw_timestep(t_normalized, scheduler):
     t_clamped = max(0.0, min(1.0, t_normalized))
     total_timesteps = scheduler.config.num_train_timesteps
@@ -17,39 +48,7 @@ def normalize_to_raw_timestep(t_normalized, scheduler):
     return t_raw
 
 def extract_features(images, normalized_timestep=0.5, batch_size=4):
-    scheduler = DDIMScheduler.from_pretrained(model_id, subfolder="scheduler")
-    pipe = StableDiffusionPipeline.from_pretrained(
-        model_id, scheduler=scheduler, torch_dtype=torch.float16
-    ).to(device)
-
-    features = {}
-
-    def hook_fn(module, input, output):
-        features["mid_block"] = output.detach().cpu()
-
-    hook_handle = pipe.unet.mid_block.register_forward_hook(hook_fn)
-
-    transform = transforms.Compose([
-        transforms.Resize((512, 512)),
-        transforms.ToTensor(), 
-        transforms.Normalize([0.5], [0.5])
-    ])
-
-    def preprocess_image(img):
-        return transform(img).to(device, dtype=pipe.vae.dtype)
-
-    class ImageDataset(Dataset):
-        def __init__(self, image_list):
-            self.image_list = image_list
-
-        def __len__(self):
-            return len(self.image_list)
-
-        def __getitem__(self, index):
-            return preprocess_image(self.image_list[index])
-
     dataloader = DataLoader(ImageDataset(images), batch_size=batch_size, shuffle=False)
-
     all_features = []
     empty_prompt_embeds = pipe.text_encoder(
         pipe.tokenizer("", return_tensors="pt").input_ids.to(device)
