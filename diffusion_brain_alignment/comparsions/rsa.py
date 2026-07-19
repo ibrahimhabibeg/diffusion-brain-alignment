@@ -13,4 +13,4 @@ def compute_rsa(brain_data, ann_data):
     
     rsa_result = rsatoolbox.rdm.compare(bio_rdm, ann_rdm, method='rho-a')
     
-    return rsa_result
+    return rsa_result[0][0]

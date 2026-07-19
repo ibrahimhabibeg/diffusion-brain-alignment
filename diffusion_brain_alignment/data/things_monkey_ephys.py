@@ -47,7 +47,6 @@ def download(monkey="monkeyF", dataset_path=data_dir):
 
     if not (dataset_path / ".datalad").exists():
         dataset_path.parent.mkdir(parents=True, exist_ok=True)
-        print(dataset_path)
         subprocess.run(
             ["datalad", "clone", "https://gin.g-node.org/paolo_papale/TVSD", str(dataset_path)],
             check=True,

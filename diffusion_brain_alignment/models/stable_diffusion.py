@@ -19,8 +19,6 @@ features = {}
 def hook_fn(module, input, output):
     features["mid_block"] = output.detach().cpu()
 
-hook_handle = pipe.unet.mid_block.register_forward_hook(hook_fn)
-
 transform = transforms.Compose([
     transforms.Resize((512, 512)),
     transforms.ToTensor(), 
@@ -48,6 +46,7 @@ def normalize_to_raw_timestep(t_normalized, scheduler):
     return t_raw
 
 def extract_features(images, normalized_timestep=0.5, batch_size=4):
+    hook_handle = pipe.unet.mid_block.register_forward_hook(hook_fn)
     dataloader = DataLoader(ImageDataset(images), batch_size=batch_size, shuffle=False)
     all_features = []
     empty_prompt_embeds = pipe.text_encoder(
