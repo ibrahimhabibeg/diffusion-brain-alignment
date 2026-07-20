@@ -18,6 +18,7 @@ classifiers = [
 dependencies = [
     "accelerate>=1.14.0",
     "diffusers>=0.39.0",
+    "huggingface-hub>=1.23.0",
     "ipykernel>=7.3.0",
     "ipywidgets>=8.1.8",
     "laion-fmri",
