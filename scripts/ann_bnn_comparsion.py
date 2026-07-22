@@ -94,7 +94,7 @@ def main():
     response_indices = subset_df["response_file_index"].values.astype(int)
     response_file_name = subset_df.iloc[0]["response_file_name"]
 
-    ai_file_path = PROCESSED_DATA_DIR / f"sd_mid_block_0.10.npy"
+    ai_file_path = PROCESSED_DATA_DIR / f"sd_mid_block_{args.noise_degree:.2f}.npy"
     ai_features = np.load(ai_file_path, mmap_mode="r")
     ai_matrix = ai_features[image_ids]
 
