@@ -36,7 +36,6 @@ def parse_arguments():
         help="List of noise levels (e.g. 0.25 0.5 0.75)",
     )
 
-    parser.add_argument("--rdm_metric", type=str, default="correlation")
     parser.add_argument("--n_permutations", type=int, default=1000)
     parser.add_argument("--random_seed", type=int, default=42)
 
@@ -197,7 +196,6 @@ def process_combination(monkey, roi, noise_level, args, device):
         "roi": roi,
         "noise_level": noise_level,
         "total_images": ai_matrix.shape[0],
-        "rdm_metric": args.rdm_metric,
         "n_permutations": args.n_permutations,
         "random_seed": args.random_seed,
         "true_alignment_score": true_similarity_value.item(),
