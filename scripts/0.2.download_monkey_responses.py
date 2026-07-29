@@ -10,7 +10,7 @@ DEFAULT_OUTPUT_DIR = Path("../data/raw/tvsd")
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Download Monkey Ephys (TVSD) dataset directly without DataLad."
+        description="Download Monkey Ephys (TVSD) dataset"
     )
     parser.add_argument(
         "--output-dir", 
