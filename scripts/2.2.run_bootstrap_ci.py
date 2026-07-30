@@ -249,9 +249,8 @@ def main():
     if all_results:
         print("\nSaving results to disk...")
         results_df = pd.DataFrame(all_results)
-        write_header = not args.output_csv.exists()
         args.output_csv.parent.mkdir(parents=True, exist_ok=True)
-        results_df.to_csv(args.output_csv, mode="a", index=False, header=write_header)
+        results_df.to_csv(args.output_csv, index=False)
         print(f"Successfully processed {len(all_results)} combinations.")
 
 
