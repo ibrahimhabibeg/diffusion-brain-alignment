@@ -5,9 +5,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.stats import rankdata
 import torch
 from tqdm.auto import tqdm
+
+from diffusion_brain_alignment.metrics import calc_rdm_matrix, transform_to_percentile_rdm
 
 
 def parse_arguments():
@@ -101,26 +102,6 @@ def load_sorted_representations(monkey, roi, noise_level, args):
     return ai_noisy_matrix, bio_matrix
 
 
-def calc_rdm_correlation_torch(x):
-    x_centered = x - x.mean(dim=1, keepdim=True)
-    x_norm = x_centered / torch.norm(x_centered, p=2, dim=1, keepdim=True)
-    sim = torch.mm(x_norm, x_norm.t())
-    return 1.0 - sim
-
-
-def transform_to_percentile_rdm(rdm):
-    n = rdm.shape[0]
-    i_upper, j_upper = np.triu_indices(n, k=1)
-
-    ranks = rankdata(rdm[i_upper, j_upper])
-    percentiles = (ranks - 1) / (len(ranks) - 1)
-
-    percentile_rdm = np.zeros_like(rdm)
-    percentile_rdm[i_upper, j_upper] = percentiles
-    percentile_rdm[j_upper, i_upper] = percentiles
-    return percentile_rdm
-
-
 def process_combination(monkey, roi, noise_level, args, device):
     try:
         ai_noisy_matrix, bio_matrix = load_sorted_representations(monkey, roi, noise_level, args)
@@ -131,8 +112,8 @@ def process_combination(monkey, roi, noise_level, args, device):
         t_bnn = torch.tensor(bio_matrix, dtype=torch.float32, device=device)
         t_ann_noisy = torch.tensor(ai_noisy_matrix, dtype=torch.float32, device=device)
 
-        rdm_bnn = calc_rdm_correlation_torch(t_bnn).cpu().numpy()
-        rdm_ann_noisy = calc_rdm_correlation_torch(t_ann_noisy).cpu().numpy()
+        rdm_bnn = calc_rdm_matrix(t_bnn).cpu().numpy()
+        rdm_ann_noisy = calc_rdm_matrix(t_ann_noisy).cpu().numpy()
 
     rdm_ann_pct = transform_to_percentile_rdm(rdm_ann_noisy)
     rdm_bnn_pct = transform_to_percentile_rdm(rdm_bnn)

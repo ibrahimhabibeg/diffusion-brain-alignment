@@ -1,12 +1,13 @@
 import argparse
 import itertools
-import math
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import torch
 from tqdm import tqdm
+
+from diffusion_brain_alignment.metrics import calc_rdm_matrix, compute_rsa_score
 
 
 def parse_arguments():
@@ -109,40 +110,10 @@ def load_representations(monkey, roi, noise_level, args):
     return ai_matrix, bio_matrix
 
 
-def calc_rdm_correlation_torch(x):
-    x_centered = x - x.mean(dim=1, keepdim=True)
-    x_norm = x_centered / torch.norm(x_centered, p=2, dim=1, keepdim=True)
-    sim = torch.mm(x_norm, x_norm.t())
-    return 1.0 - sim
-
-
 def generate_rdms(ai_tensor, bio_tensor):
-    ai_rdm_tensor = calc_rdm_correlation_torch(ai_tensor)
-    bio_rdm_tensor = calc_rdm_correlation_torch(bio_tensor)
+    ai_rdm_tensor = calc_rdm_matrix(ai_tensor)
+    bio_rdm_tensor = calc_rdm_matrix(bio_tensor)
     return ai_rdm_tensor, bio_rdm_tensor
-
-
-def compute_rsa_score(ai_rdm_tensor, bio_rdm_tensor, device):
-    num_conditions = bio_rdm_tensor.shape[0]
-    i_upper, j_upper = torch.triu_indices(num_conditions, num_conditions, offset=1, device=device)
-    ai_vector = ai_rdm_tensor[i_upper, j_upper]
-    bio_vector = bio_rdm_tensor[i_upper, j_upper]
-
-    ai_ranks = torch.argsort(torch.argsort(ai_vector)).float()
-    bio_ranks = torch.argsort(torch.argsort(bio_vector)).float()
-
-    ai_ranks_centered = ai_ranks - torch.mean(ai_ranks)
-    bio_ranks_centered = bio_ranks - torch.mean(bio_ranks)
-
-    n = ai_vector.shape[0]
-    expected_variance = ((n**3) - n) / 12.0
-    expected_std = math.sqrt(expected_variance)
-
-    ai_ranks_scaled = ai_ranks_centered / expected_std
-    bio_ranks_scaled = bio_ranks_centered / expected_std
-
-    correlation = torch.dot(ai_ranks_scaled, bio_ranks_scaled)
-    return correlation
 
 
 def generate_null_distribution(ai_rdm_tensor, bio_rdm_tensor, n_permutations, device, random_seed):
@@ -153,12 +124,12 @@ def generate_null_distribution(ai_rdm_tensor, bio_rdm_tensor, n_permutations, de
     null_distribution_tensor = torch.zeros(n_permutations, device=device)
 
     with torch.no_grad():
-        true_similarity_value = compute_rsa_score(ai_rdm_tensor, bio_rdm_tensor, device)
+        true_similarity_value = compute_rsa_score(ai_rdm_tensor, bio_rdm_tensor)
 
         for i in range(n_permutations):
             shuffled_idx = torch.randperm(num_conditions, device=device)
             shuffled_bio_tensor = bio_rdm_tensor[shuffled_idx][:, shuffled_idx]
-            correlation = compute_rsa_score(ai_rdm_tensor, shuffled_bio_tensor, device)
+            correlation = compute_rsa_score(ai_rdm_tensor, shuffled_bio_tensor)
             null_distribution_tensor[i] = correlation
 
     return true_similarity_value, null_distribution_tensor

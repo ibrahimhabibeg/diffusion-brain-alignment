@@ -1,12 +1,13 @@
 import argparse
 import itertools
-import math
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import torch
 from tqdm.auto import tqdm
+
+from diffusion_brain_alignment.metrics import calc_rdm_matrix, compute_rsa_score
 
 
 def parse_arguments():
@@ -72,37 +73,6 @@ def get_averaged_representations(df, monkey, roi, metadata_csv_path):
     return grouped_reps
 
 
-def calc_rdm_correlation_torch(x):
-    x_centered = x - x.mean(dim=1, keepdim=True)
-    x_norm = x_centered / torch.norm(x_centered, p=2, dim=1, keepdim=True)
-    sim = torch.mm(x_norm, x_norm.t())
-    return 1.0 - sim
-
-
-def compute_rsa_score(rdm1, rdm2, device):
-    num_conditions = rdm2.shape[0]
-    i_upper, j_upper = torch.triu_indices(num_conditions, num_conditions, offset=1, device=device)
-
-    vec1 = rdm1[i_upper, j_upper]
-    vec2 = rdm2[i_upper, j_upper]
-
-    ranks1 = torch.argsort(torch.argsort(vec1)).float()
-    ranks2 = torch.argsort(torch.argsort(vec2)).float()
-
-    ranks1_centered = ranks1 - torch.mean(ranks1)
-    ranks2_centered = ranks2 - torch.mean(ranks2)
-
-    n = vec1.shape[0]
-    expected_variance = ((n**3) - n) / 12.0
-    expected_std = math.sqrt(expected_variance)
-
-    ranks1_scaled = ranks1_centered / expected_std
-    ranks2_scaled = ranks2_centered / expected_std
-
-    correlation = torch.dot(ranks1_scaled, ranks2_scaled)
-    return correlation
-
-
 def process_combination(monkey1, monkey2, roi, df, args, device):
     reps1 = get_averaged_representations(df, monkey1, roi, args.metadata_csv)
     reps2 = get_averaged_representations(df, monkey2, roi, args.metadata_csv)
@@ -121,9 +91,9 @@ def process_combination(monkey1, monkey2, roi, df, args, device):
     tensor2 = torch.tensor(aligned_reps2, dtype=torch.float32, device=device)
 
     with torch.no_grad():
-        rdm1 = calc_rdm_correlation_torch(tensor1)
-        rdm2 = calc_rdm_correlation_torch(tensor2)
-        score = compute_rsa_score(rdm1, rdm2, device).item()
+        rdm1 = calc_rdm_matrix(tensor1)
+        rdm2 = calc_rdm_matrix(tensor2)
+        score = compute_rsa_score(rdm1, rdm2).item()
 
     return {
         "monkey1": monkey1,
@@ -141,11 +111,11 @@ def main():
         raise FileNotFoundError(f"Missing metadata sheet at: {args.metadata_csv}")
 
     df = pd.read_csv(args.metadata_csv)
-    
+
     available_monkeys = set(df["monkey"].unique())
     requested_monkeys = [m for m in args.monkeys if m in available_monkeys]
     unique_monkeys = sorted(list(set(requested_monkeys)))
-    
+
     if len(unique_monkeys) < 2:
         raise ValueError(
             f"Need at least 2 valid monkeys to perform comparison. Valid found: {unique_monkeys}"
