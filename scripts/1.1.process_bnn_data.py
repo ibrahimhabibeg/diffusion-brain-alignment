@@ -5,9 +5,6 @@ import h5py
 import numpy as np
 import pandas as pd
 
-MONKEYS = ["monkeyF", "monkeyN"]
-ROIS = ["V1", "V4", "IT"]
-
 AREA_CHANNELS = {
     "monkeyF": {"V1": (0, 512), "IT": (512, 832), "V4": (832, 1024)},
     "monkeyN": {"V1": (0, 512), "V4": (512, 768), "IT": (768, 1024)},
@@ -37,18 +34,18 @@ def parse_args() -> argparse.Namespace:
         help="Name of the output metadata CSV file.",
     )
     parser.add_argument(
-        "--monkey",
+        "--monkeys",
+        nargs="+",
         type=str,
-        choices=["monkeyF", "monkeyN", "both"],
-        default="both",
-        help="Select which monkey to process.",
+        default=["monkeyF", "monkeyN"],
+        help="List of monkeys to process (e.g., monkeyF monkeyN).",
     )
     parser.add_argument(
-        "--roi",
+        "--rois",
+        nargs="+",
         type=str,
-        choices=["V1", "V4", "IT", "all"],
-        default="all",
-        help="Select which ROI to process.",
+        default=["V1", "V4", "IT"],
+        help="List of ROIs to process (e.g., V1 V4 IT).",
     )
     parser.add_argument(
         "--subset",
@@ -160,8 +157,8 @@ def main():
     responses_dir = args.output_dir / "responses"
     responses_dir.mkdir(parents=True, exist_ok=True)
 
-    selected_monkeys = MONKEYS if args.monkey == "both" else [args.monkey]
-    selected_rois = ROIS if args.roi == "all" else [args.roi]
+    selected_monkeys = args.monkeys
+    selected_rois = args.rois
 
     mat_file_path = args.input_dir / "monkeyF" / "_logs" / "things_imgs.mat"
     train_paths = load_image_metadata(mat_file_path)
