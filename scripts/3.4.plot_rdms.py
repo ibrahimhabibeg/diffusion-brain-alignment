@@ -128,11 +128,11 @@ def process_combination(monkey, roi, noise_level, args, device):
         y=1.02,
     )
 
-    cmap = "viridis"
+    cmap = "RdYlBu_r"
     vmin, vmax = 0.0, 1.0
 
     _ = axes[0].imshow(rdm_ann_pct, cmap=cmap, vmin=vmin, vmax=vmax)
-    axes[0].set_title(f"Stable Diffusion (Noise: {noise_level:g})", fontsize=12, pad=10)
+    axes[0].set_title(f"Stable Diffusion (Noise: {noise_level:.2f})", fontsize=12, pad=10)
     axes[0].axis("off")
 
     im2 = axes[1].imshow(rdm_bnn_pct, cmap=cmap, vmin=vmin, vmax=vmax)

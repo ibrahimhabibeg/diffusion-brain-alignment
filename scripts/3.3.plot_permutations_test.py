@@ -108,7 +108,7 @@ def main():
 
                 if not npy_path.exists():
                     ax.text(0.5, 0.5, f"Missing:\n{npy_filename}", ha="center", va="center")
-                    ax.set_title(f"Noise: {noise:g}")
+                    ax.set_title(f"Noise: {noise:.2f}")
                     ax.set_xticks([])
                     ax.set_yticks([])
                     continue
@@ -129,7 +129,7 @@ def main():
                     label=f"True Score ({true_score:.3f})",
                 )
 
-                ax.set_title(f"Stable Diffusion Noise: {noise:g}", fontsize=12)
+                ax.set_title(f"Stable Diffusion Noise: {noise:.2f}", fontsize=12)
                 ax.set_xlabel("RSA Score (rho-a)", fontsize=10)
                 ax.set_ylabel("Frequency", fontsize=10)
                 ax.spines["top"].set_visible(False)

@@ -117,7 +117,7 @@ def main():
         im = ax.imshow(masked_data, aspect="auto", cmap="magma", vmin=global_min, vmax=global_max)
 
         ax.set_xticks(range(len(noise_levels)))
-        ax.set_xticklabels([f"{n:g}" for n in noise_levels])
+        ax.set_xticklabels([f"{n:.2f}" for n in noise_levels])
         ax.set_yticks(range(len(heat.index)))
         ax.set_yticklabels(heat.index)
 
