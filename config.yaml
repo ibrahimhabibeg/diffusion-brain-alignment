@@ -1,0 +1,44 @@
+DATA_DIR: "data"
+SUBSET: true
+MONKEYS:
+  - monkeyF
+  - monkeyN
+ROIS:
+  - IT
+  - V4
+  - V1
+NOISE_LEVELS:
+  - 0.01
+  - 0.05
+  - 0.10
+  - 0.15
+  - 0.20
+  - 0.25
+  - 0.30
+  - 0.35
+  - 0.40
+  - 0.45
+  - 0.50
+  - 0.55
+  - 0.60
+  - 0.65
+  - 0.70
+  - 0.75
+  - 0.80
+  - 0.85
+  - 0.90
+  - 0.95
+  - 0.99
+MODES:
+  - raw
+  - normalized
+SEED: 42
+MODEL_PARAMS:
+  NUM_WORKERS: 4
+  BATCH_SIZE: 16
+PERMUTATIONS_TEST:
+  NUM_PERMUTATIONS: 1000
+BOOTSTRAP_TEST:
+  NUM_BOOTSTRAPS: 1000
+  CI: 95.0
+  SAMPLE_SIZE: 0.8
