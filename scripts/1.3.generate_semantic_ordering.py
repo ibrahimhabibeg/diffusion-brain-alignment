@@ -29,12 +29,19 @@ def parse_arguments():
         default="all-MiniLM-L6-v2",
         help="HuggingFace SentenceTransformer model to use for embeddings.",
     )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility.",
+    )
 
     return parser.parse_args()
 
 
 def main():
     args = parse_arguments()
+    torch.manual_seed(args.seed)
 
     if not args.images_dir.exists() or not args.images_dir.is_dir():
         raise FileNotFoundError(f"Images directory not found: {args.images_dir}")
