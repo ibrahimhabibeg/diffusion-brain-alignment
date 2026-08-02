@@ -52,9 +52,9 @@ You can change the config file to change the parameters of the experiment. If yo
 
 The workflow is broken down into four sequential stages, orchestrated by the `Snakefile`:
 
-- **0.x Data Acquisition**: Fetches the THINGS image database and TVSD macaque multi-unit activity (MUA) recordings.
-- **1.x Data Processing**: Slices the biological arrays, extracts Stable Diffusion mid-block UNet activations, and generates semantic orderings.
-- **2.x Statistical Alignment**: Computes Representational Dissimilarity Matrices (RDMs), Spearman rank RSA scores, permutation tests, bootstrap confidence intervals, and inter-subject noise ceilings.
+- **0.x Data Acquisition**: Downloads the THINGS image database and macaque neural recordings.
+- **1.x Data Processing**: Extracts Stable Diffusion UNet mid-block activations, prepares the neural data, and orders image categories.
+- **2.x Statistical Alignment**: Computes Representational Dissimilarity Matrices (RDMs) and performs Representational Similarity Analysis (RSA) to quantify the alignment between diffusion model representations and macaque neural activity.
 - **3.x Visualization**: Consumes the statistical results to generate Matplotlib figures (RSA curves, heatmaps, null distributions, and RDM matrices).
 
 ## Authors
