@@ -53,6 +53,10 @@ rule download_monkey_responses:
 # 1.x Data Processing Scripts
 # ==========================================
 rule process_bnn:
+    input:
+        log=f"{DATA_DIR}/raw/tvsd/monkeyF/_logs/things_imgs.mat",
+        mua_f=f"{DATA_DIR}/raw/tvsd/monkeyF/THINGS_normMUA.mat",
+        mua_n=f"{DATA_DIR}/raw/tvsd/monkeyN/THINGS_normMUA.mat"
     output:
         meta=f"{DATA_DIR}/processed/things_metadata.csv"
     params:
@@ -80,6 +84,8 @@ rule process_ann:
         "uv run python scripts/1.2.process_ann_data.py --noise_levels {params.noise} --images_dir {params.images_dir} --csv_metadata_path {input.meta} --output_dir {params.out_dir} --seed {params.seed} --num_workers {params.num_workers} --batch_size {params.batch_size}"
 
 rule generate_semantic_ordering:
+    input:
+        img_dir=f"{DATA_DIR}/raw/images/object_images"
     output:
         out_csv=f"{DATA_DIR}/processed/semantic_ordering.csv"
     params:
