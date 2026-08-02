@@ -131,7 +131,7 @@ rule run_bootstrap_ci:
         CI=CI,
         SAMPLE_SIZE=SAMPLE_SIZE
     shell:
-        "uv run python scripts/2.2.run_bootstrap_ci.py --monkeys {params.monkeys} --rois {params.rois} --noise_degrees {params.noise} --metadata_csv {input.meta} --activations_dir {params.act_dir} --output_csv {output.out_csv} --random_seed {params.seed} --n_bootstraps {params.N_BOOTSTRAPS} --ci {params.CI} --sample_size {params.SAMPLE_SIZE}"
+        "uv run python scripts/2.2.run_bootstrap_ci.py --monkeys {params.monkeys} --rois {params.rois} --noise_degrees {params.noise} --metadata_csv {input.meta} --activations_dir {params.act_dir} --output_csv {output.out_csv} --random_seed {params.seed} --n_bootstrap {params.N_BOOTSTRAPS} --ci {params.CI} --sample_size {params.SAMPLE_SIZE}"
 
 rule run_noise_ceiling:
     input:
